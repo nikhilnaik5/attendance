@@ -1,26 +1,25 @@
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const express = require('express');
+const cors = require("cors")
+const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
 const app = express();
 
 const authRoute = require('./router/auth');
 const lectureRoute = require('./router/lecture');
+app.use(cors());
+app.use('/static', express.static('static'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const cors = require('cors');
-app.use(cors({
-    origin: 'http://localhost:3000', // use your actual domain name (or localhost), using * is not recommended
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'x-client-key', 'x-client-token', 'x-client-secret', 'Authorization'],
-    credentials: true
-}))
+
 
 dotenv.config({path:'./config.env'});
 const port=process.env.PORT;
 
 require('./db/conn.js');
 require('./config/passjwt');
-
-app.use(express.json());
 
 app.use("/auth", authRoute);
 app.use("/lecture", lectureRoute);

@@ -28,13 +28,6 @@ const Login = () => {
         })
     }
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if(token)
-        {
-          navigate('/')
-        }
-      }, [])
 
     return (
         <div>

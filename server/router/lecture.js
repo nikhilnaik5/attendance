@@ -68,6 +68,7 @@ router.get('/',passport.authenticate('jwt',{session:false}), async (req, res) =>
             }
             temp.push(days);
             temp.push(days);
+            temp.push(0);
             schedule[i].push(temp);
         }
 
@@ -129,6 +130,7 @@ router.get('/',passport.authenticate('jwt',{session:false}), async (req, res) =>
             let compare = absent.date;
             compare = new Date(compare);
             if (compare.getTime() == date.getTime()) {
+                schedule[k][j][2]=-1;
                 for (var x = k; x < schedule.length; x++) {
                     schedule[x][j][0] -= absent.number;
                 }
@@ -222,6 +224,150 @@ router.post('/absent',passport.authenticate('jwt',{session:false}), async (req, 
         res.status(500).send("An error occured while marking you absent");
     }
 
+})
+
+router.post('/sub',passport.authenticate('jwt', { session: false }), async (req, res) => {
+    console.log(req.body);
+    console.log(req.user.name);
+    const sub = req.body.subject;
+    const subject = await Subject.findOne({name:sub});
+    let start = new Date(subject.start);
+    let end = new Date(subject.end);
+    let schedule = [];
+    let temp = [];
+    while(start.getTime()<=end.getTime())
+    {
+        let day = start.getDay();
+        temp = [];
+        if(day == 0 && subject.sunday!=0)
+        {
+            temp.push(new Date(start));
+            temp.push(subject.sunday);
+            schedule.push(temp);
+        }
+        else if(day == 1 && subject.monday!=0)
+        {
+            temp.push(new Date(start));
+            temp.push(subject.monday);
+            schedule.push(temp);
+        }
+        else if(day == 2 && subject.tuesday!=0)
+        {
+            temp.push(new Date(start));
+            temp.push(subject.tuesday);
+            schedule.push(temp);
+        }
+        else if(day == 3 && subject.wednesday!=0)
+        {
+            temp.push(new Date(start));
+            temp.push(subject.wednesday);
+            schedule.push(temp);
+        }
+        else if(day == 4 && subject.thursday!=0)
+        {
+            temp.push(new Date(start));
+            temp.push(subject.thursday);
+            schedule.push(temp);
+        }
+        else if(day == 5 && subject.friday!=0)
+        {
+            
+            temp.push(new Date(start));
+            temp.push(subject.friday);
+            schedule.push(temp);
+        }
+        else if(day == 6 && subject.saturday!=0)
+        {
+            temp.push(new Date(start));
+            temp.push(subject.saturday);
+            schedule.push(temp);
+        }
+        start.setTime(start.getTime() + 1000 * 60 * 60 * 24);
+    }
+    for(var i=0;i<subject.extra.length;i++)
+    {
+        let extra = await Extra.findOne({_id:subject.extra[i]});
+        let date = new Date(extra.date);
+        for(var j=0;j<schedule.length;j++)
+        {
+            let c = new Date(schedule[j][0]);
+            if(date.getTime()==c.getTime())
+            {
+                schedule[j][1] = schedule[j][1] + extra.number;
+                break;
+            }
+            else if(date.getTime()>c.getTime())
+            {
+                let temp = [];
+                temp.push(date);
+                temp.push(extra.number);
+                schedule.splice(j+1,0,temp);
+                // console.log("Wassup");
+                break;
+            }
+        }
+    }
+    for(var i=0;i<subject.holiday.length;i++)
+    {
+        let holiday = await Holiday.findOne({_id:subject.holiday[i]});
+        let date = new Date(holiday.date);
+        for(var j=0;j<schedule.length;j++)
+        {
+            let c = new Date(schedule[j][0]);
+            if(date.getTime()==c.getTime())
+            {
+                schedule[j][1] = schedule[j][1] - holiday.number;
+                if(schedule[j][1]==0)
+                {
+                    schedule.splice(j,1);
+                }
+                break;
+            }
+        }
+    }
+    for(var i=0;i<schedule.length;i++)
+    {
+        schedule[i].push(schedule[i][1]);
+        schedule[i].push(0);
+    }
+    for(var i=0;i<req.user.absent.length;i++)
+    {
+        let absent = await Absent.findOne({_id:req.user.absent[i]});
+        let date = new Date(absent.date)
+        for(var j=0;j<schedule.length;j++)
+        {
+            let c = new Date(schedule[j][0]);
+            if(date.getTime()==c.getTime())
+            {
+                schedule[j][2]=schedule[j][2]-absent.number;
+                schedule[j][3]=-1;
+                break;
+            }
+        }
+    }
+    let lectures =0;
+    let attended = 0;
+    for(var i=0;i<schedule.length;i++)
+    {
+        lectures+=schedule[i][1];
+        attended+=schedule[i][2];
+        schedule[i].push(lectures);
+        schedule[i].push(attended);
+        schedule[i].push(((attended/lectures)*100).toFixed(2));
+    }
+    
+    res.status(200).send(schedule);
+})
+
+router.get('/getsubjectnames',passport.authenticate('jwt',{session:false}), async (req, res) => {
+    let user = await User.findOne({_id:req.user._id});
+    let subjects= [];
+    for(var i=0;i<user.subjects.length;i++)
+    {
+        let sub = await Subject.findOne({_id:user.subjects[i]});
+        subjects.push(sub.name);
+    }
+    res.status(200).send(subjects);
 })
 
 module.exports = router;
