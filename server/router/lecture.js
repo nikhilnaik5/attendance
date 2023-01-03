@@ -227,8 +227,6 @@ router.post('/absent',passport.authenticate('jwt',{session:false}), async (req, 
 })
 
 router.post('/sub',passport.authenticate('jwt', { session: false }), async (req, res) => {
-    console.log(req.body);
-    console.log(req.user.name);
     const sub = req.body.subject;
     const subject = await Subject.findOne({name:sub});
     let start = new Date(subject.start);

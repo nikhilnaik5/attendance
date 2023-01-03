@@ -9,7 +9,6 @@ opts.secretOrKey = "SECRETKEY";
 opts.passReqToCallback= true;
 
 passport.use(new JwtStrategy(opts, function (req,jwt_payload, done) {
-    console.log("Hello")
     User.findOne({ _id: jwt_payload.id }, function (err, user) {
         if (err) {
             return done(err, false);

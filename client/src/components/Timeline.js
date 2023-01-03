@@ -5,18 +5,40 @@ const Timeline = () => {
     const [subjects, setSubjects] = useState([]);
     const [selectedOption, setSelectedOption] = useState(0);
     const [attendance, setAttendance] = useState([]);
-    const [toggle,setToggle] = useState(true);
-    function handleClick(i) {
+    const [toggle, setToggle] = useState({});
+
+    function toggleFunction(id) {
+        setToggle({
+            ...toggle,
+            [id]: !toggle[id],
+        });
+    }
+
+    function handleAbsentClick(i) {
+        const sub = attendance[i][1];
         const name = new Date(attendance[i][0]);
         const update = attendance.map(obj => {
             let x = new Date(obj[0])
-            if (name.getTime()<=x.getTime()) {
-                obj[5] -= obj[1];
+            if (name.getTime() <= x.getTime()) {
+                obj[5] -= sub;
                 return obj;
             }
             return obj;
         });
-        console.log(update);
+        setAttendance(update);
+    }
+
+    function handlePresentClick(i) {
+        const sub = attendance[i][1];
+        const name = new Date(attendance[i][0]);
+        const update = attendance.map(obj => {
+            let x = new Date(obj[0])
+            if (name.getTime() <= x.getTime()) {
+                obj[5] += sub;
+                return obj;
+            }
+            return obj;
+        });
         setAttendance(update);
     }
 
@@ -82,25 +104,29 @@ const Timeline = () => {
                                     <td class="py-4 px-6">
                                         {sub[5]}/{sub[4]}
                                     </td>
+                                    {(() => {
+                                        if (((sub[5] / sub[4]) * 100).toFixed(2) < 75.00) {
+                                            return (
+                                                <td class="py-4 px-6 bg-red-500 text-white">
+                                                    {((sub[5] / sub[4]) * 100).toFixed(2)}
+                                                </td>
+                                            )
+                                        } else {
+                                            return (
+                                                <td class="py-4 px-6">
+                                                    {((sub[5] / sub[4]) * 100).toFixed(2)}
+                                                </td>
+                                            )
+                                        }
+                                    })()}
                                     <td class="py-4 px-6">
-                                        {sub[6]}
-                                    </td>
-                                    <td class="py-4 px-6">
-                                        {toggle?<button type='button' className='bg-green-500 cursor-not-allowed' disabled><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white font-bold">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        {!toggle[i] ? <button type='button' className='bg-red-500' onClick={() => { handleAbsentClick(i); toggleFunction(i)}}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white font-bold">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
-                                        </button>:<button type='button' className='bg-green-500'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white font-bold" onClick={()=>{setToggle(false)}}>
+                                        </button> : <button type='button' className='bg-green-500'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white font-bold" onClick={() => { handlePresentClick(i); toggleFunction(i)}}>
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                         </svg>
                                         </button>}
-                                        {toggle?<button type='button' className='bg-red-500' onClick={() => {handleClick(i); setToggle(true)}}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white font-bold">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        </button>:<button type='button' className='bg-red-500' onClick={() => handleClick(i)} disabled><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white font-bold">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        </button>}
-                                        
                                     </td>
                                     {(() => {
                                         if ((sub[3] == 0)) {
