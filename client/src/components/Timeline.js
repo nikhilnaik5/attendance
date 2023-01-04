@@ -71,37 +71,37 @@ const Timeline = () => {
                 <select onChange={e => setSelectedOption(e.target.value)} value={selectedOption}>
                     {subjects.map((sub, idx) => <option value={idx}>{sub}</option>)}
                 </select>
-                <button type='button' class="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" onClick={postData}>wassup hommie</button>
+                <button type='button' class="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" onClick={postData}>See Attendance</button>
             </form>
             <div className='w-full'>
                 <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-500 dark:bg-gray-800 dark:text-gray-400">
                             <tr>
-                                <th scope="col" class="py-3 px-6">
+                                <th scope="col" class="py-3 px-6 ">
                                     Date
                                 </th>
-                                <th scope="col" class="py-3 px-6">
+                                <th scope="col" class="py-3 px-6 ">
                                     Lectures
                                 </th>
-                                <th scope="col" class="py-3 px-6">
+                                <th scope="col" class="py-3 px-6 ">
                                     Attendance (in %)
                                 </th>
-                                <th scope="col" class="py-3 px-6">
+                                <th scope="col" class="py-3 px-6 ">
                                     Options
                                 </th>
-                                <th scope="col" class="py-3 px-6">
+                                <th scope="col" class="py-3 px-6 ">
                                     Status
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             {attendance.map((sub, i) =>
-                                <tr class="bg-white border-b">
-                                    <th scope="row" class="py-4 px-6 font-medium text-black">
+                                <tr class="bg-white border-b dark:bg-gray-700 ">
+                                    <th scope="row" class="py-4 px-6 font-medium text-gray-800 dark:text-white">
                                         {sub[0].split('T')[0]}
                                     </th>
-                                    <td class="py-4 px-6">
+                                    <td class="py-4 px-6 dark:text-white-900">
                                         {sub[5]}/{sub[4]}
                                     </td>
                                     {(() => {
@@ -113,17 +113,17 @@ const Timeline = () => {
                                             )
                                         } else {
                                             return (
-                                                <td class="py-4 px-6">
+                                                <td class="py-4 px-6 text-gray-800 dark:text-white">
                                                     {((sub[5] / sub[4]) * 100).toFixed(2)}
                                                 </td>
                                             )
                                         }
                                     })()}
                                     <td class="py-4 px-6">
-                                        {!toggle[i] ? <button type='button' className='bg-red-500' onClick={() => { handleAbsentClick(i); toggleFunction(i)}}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white font-bold">
+                                        {!toggle[i] ? <button type='button' className='bg-red-500 rounded' onClick={() => { handleAbsentClick(i); toggleFunction(i)}}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white font-bold">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
-                                        </button> : <button type='button' className='bg-green-500'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white font-bold" onClick={() => { handlePresentClick(i); toggleFunction(i)}}>
+                                        </button> : <button type='button' className='bg-green-500 rounded'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white font-bold" onClick={() => { handlePresentClick(i); toggleFunction(i)}}>
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                         </svg>
                                         </button>}

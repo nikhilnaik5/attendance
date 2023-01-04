@@ -7,7 +7,6 @@ const Footer = () => {
                 <span className="block text-sm text-gray-500 sm:text-center dark:text-gray-400">Made with ❤️ by <a href="https://www.linkedin.com/in/nikhil-naik-284197204/" className="hover:underline">Nikhil</a>
                 </span>
             </footer>
-
         </div>
     )
 }

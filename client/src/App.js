@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, BrowserRouter} from 'react-router-dom';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import './App.css';
 import Home from './components/Home';
 import Login from './components/Login';
@@ -10,13 +10,17 @@ import Footer from './components/Footer';
 function App() {
   return (
     <BrowserRouter>
-    <Navbar/>
-    <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/timeline" element={<Timeline />} />
-    </Routes>
-    <Footer/>
+      <div class="flex flex-col h-screen">
+        <Navbar />
+        <div className='mb-auto h-10'>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/timeline" element={<Timeline />} />
+          </Routes>
+        </div>
+        <Footer />
+      </div>
     </BrowserRouter>
   );
 }
