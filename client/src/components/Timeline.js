@@ -44,7 +44,7 @@ const Timeline = () => {
 
     const postData = async () => {
         const token = localStorage.getItem('token');
-        const response = await fetch("http://localhost:5000/lecture/sub", {
+        const response = await fetch("/lecture/sub", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -60,7 +60,7 @@ const Timeline = () => {
     useEffect(() => {
         async function subjectResult() {
             const token = localStorage.getItem('token');
-            axios.get("http://localhost:5000/lecture/getsubjectnames", { headers: { 'Authorization': token } }).then((res) => { setSubjects(res.data); console.log(res.data) }).catch("No successful result");
+            axios.get("/lecture/getsubjectnames", { headers: { 'Authorization': token } }).then((res) => { setSubjects(res.data); console.log(res.data) }).catch("No successful result");
         }
         subjectResult();
     }, [])

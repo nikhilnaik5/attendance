@@ -7,7 +7,7 @@ const Navbar = () => {
     useEffect(() => {
         async function setAuthority() {
             let token = localStorage.getItem('token')
-            await axios.get('http://localhost:5000/auth/authenticate', {
+            await axios.get('/auth/authenticate', {
                 headers: {
                     Authorization: token
                 }

@@ -9,7 +9,7 @@ const Home = () => {
     useEffect(() => {
         async function getPercentage() {
             const token = localStorage.getItem('token');
-            await axios.get("http://localhost:5000/lecture/", { headers: { 'Authorization': token } }).then(res => {
+            await axios.get("/lecture/", { headers: { 'Authorization': token } }).then(res => {
                 setSubject(res.data[0])
                 setNumber(((res.data[0][0]).length) - 1)
                 console.log(res.data[0])

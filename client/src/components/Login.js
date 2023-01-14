@@ -22,7 +22,7 @@ const Login = () => {
     const PostUserLogin = () =>{
         let email = userlogin.email;
         let password = userlogin.password;
-        axios.post('http://localhost:5000/auth/login',{email,password}).then(res=>{
+        axios.post('/auth/login',{email,password}).then(res=>{
             localStorage.setItem('token',res.data.token)
             navigate('/home')
             window.location.reload();

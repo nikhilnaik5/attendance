@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 dotenv.config({path:'./config.env'});
-const port=process.env.PORT;
+const port=process.env.PORT || 5000;
 
 require('./db/conn.js');
 require('./config/passjwt');
