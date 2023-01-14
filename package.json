@@ -3,14 +3,9 @@
     "version": "1.0.0",
     "main": "",
     "scripts": {
-        "install-client": "cd client && npm install && cd ..",
+        "install-client": "cd client && npm install && npm run build && cd ..",
         "install-server": "cd server && npm install && cd .. ",
         "render-postbuild": "npm run install-client && npm run install-server",
-        "server": "npm start -prefix server",
-        "client": "npm start -prefix client",
-        "dev": "npm i concurrently && concurrently \"npm run server\" \"npm run client\""
-    },
-    "dependencies": {
-        "concurrently": "^7.6.0"
+        "start": "npm start -prefix server"
     }
 }
