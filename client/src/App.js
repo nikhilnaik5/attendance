@@ -5,6 +5,7 @@ import Home from './components/Home';
 import Login from './components/Login';
 import Timeline from './components/Timeline';
 import Navbar from './components/Navbar';
+import Enroll from './components/Enroll';
 import Footer from './components/Footer';
 
 function App() {
@@ -15,11 +16,13 @@ function App() {
         <div className='mb-auto h-10'>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/timeline" element={<Timeline />} />
+            <Route path="/enroll" element={<Enroll />} />
           </Routes>
         </div>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </BrowserRouter>
   );

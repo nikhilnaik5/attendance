@@ -24,7 +24,8 @@ const Login = () => {
         let password = userlogin.password;
         axios.post('http://localhost:5000/auth/login',{email,password}).then(res=>{
             localStorage.setItem('token',res.data.token)
-            navigate('/')
+            navigate('/home')
+            window.location.reload();
         })
     }
 

@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
-
+const passport = require('passport');
 const User = require('../model/userSchema');
 require('../config/passjwt');
 
@@ -10,6 +10,17 @@ router.get('/', (req, res) => {
     console.log("In the page");
     res.send("Welcome to the page from auth.js");
 });
+
+router.get('/authenticate',passport.authenticate('jwt',{session:false}), async (req, res) => {
+    if(req.user == null)
+    {
+        res.status(400).send("AUTHORIZATION FAILED");
+    }
+    else
+    {
+        res.status(200).send("Login successful"); 
+    }
+})
 
 router.post('/register', async (req, res) => {
 

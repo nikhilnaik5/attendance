@@ -21,10 +21,11 @@ router.get('/',passport.authenticate('jwt',{session:false}), async (req, res) =>
     let subject = await Subject.findOne({ _id: user[0] });
     let start = subject.start;
     let finish = subject.end;
+    let currDate = new Date();
     let subjectweek = [];
 
     var loop = start;
-    while (loop.getTime() <= finish.getTime()) {
+    while (loop.getTime() <= Math.min(finish.getTime(),currDate.getTime())) {
         var day = (new Date(loop.getTime())).toJSON();
         subjectweek = [];
         subjectweek.push(day);
@@ -345,13 +346,22 @@ router.post('/sub',passport.authenticate('jwt', { session: false }), async (req,
     }
     let lectures =0;
     let attended = 0;
+    let currDate = new Date();
     for(var i=0;i<schedule.length;i++)
     {
         lectures+=schedule[i][1];
         attended+=schedule[i][2];
         schedule[i].push(lectures);
         schedule[i].push(attended);
-        schedule[i].push(((attended/lectures)*100).toFixed(2));
+        let tableDate = schedule[i][0];
+        if(tableDate.getTime()<=currDate.getTime())
+        {
+            schedule[i].push(1);
+        }
+        else
+        {
+            schedule[i].push(0);
+        }
     }
     
     res.status(200).send(schedule);
