@@ -23,11 +23,10 @@ router.get('/authenticate',passport.authenticate('jwt',{session:false}), async (
 })
 
 router.post('/register', async (req, res) => {
-
     const { name, email, phone, password, cpassword } = req.body;
 
     if (!name || !email || !phone || !password || !cpassword) {
-        return res.status(422).json("Please fill properly");
+        return res.status(422).send({message:"Please fill properly"})
     }
 
     try {
@@ -35,20 +34,20 @@ router.post('/register', async (req, res) => {
         const userExist = await User.findOne({ email: email })
 
         if (userExist) {
-            return res.status(422).json("You are already registered");
+            return res.status(422).send({message:"Account already Exists"})
         }
         else if (password != cpassword) {
-            return res.status(422).json("Password dosen't match");
+            return res.status(422).send({message:"Password dosen't match"})
         }
 
         const user = new User({ name, email, phone, password, cpassword });
         const saveUser = await user.save()
 
         if (saveUser) {
-            res.status(201).json("Registeration Successful");
+            res.status(201).send({message:"Registeration Successful! Please Login Now"})
         }
         else {
-            res.status(500).json("Failed to Register");
+            res.status(500).send({message:"Registeration Failed"})
         }
 
     } catch (err) {
@@ -62,14 +61,14 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(422).json("Please fill the data");
+        return res.status(422).send({message:"Please fill the data"});
     }
 
     try {
         const userExist = await User.findOne({ email: email });
 
         if (!userExist) {
-            return res.status(500).json("Invalid Info");
+            return res.status(500).send({message:"Invalid Info"});
         }
 
         const matchPass = await bcrypt.compare(password, userExist.password);
@@ -90,7 +89,7 @@ router.post('/login', async (req, res) => {
             })
         }
         else {
-            return res.status(500).json("Unsuccessful");
+            return res.status(500).send({message:"Unsuccessful"});
         }
 
     } catch (error) {

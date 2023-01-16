@@ -60,7 +60,7 @@ const Timeline = () => {
     useEffect(() => {
         async function subjectResult() {
             const token = localStorage.getItem('token');
-            axios.get("/lecture/getsubjectnames", { headers: { 'Authorization': token } }).then((res) => { setSubjects(res.data); console.log(res.data) }).catch("No successful result");
+            await axios.get("/lecture/getenrolledlist", { headers: { 'Authorization': token } }).then((res) => { setSubjects(res.data); console.log(res.data) }).catch("No successful result");
         }
         subjectResult();
     }, [])
@@ -142,7 +142,7 @@ const Timeline = () => {
                                                     PRESENT
                                                 </td>
                                             )
-                                        } else if ((sub[3] == 1 && sub[6] == 1)) {
+                                        } else if ((sub[3] == -1 && sub[6] == 1)) {
                                             return (
                                                 <td class="py-4 px-6 text-red-500 font-bold">
                                                     ABSENT

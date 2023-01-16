@@ -1,33 +1,34 @@
 import React from 'react'
 import axios from 'axios'
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import loginImage from "../images/draw2.webp"
-const Login = () => {
-    const navigate = useNavigate();
+import { useState} from "react";
+import { Link } from "react-router-dom";
+import registerImage from "../images/20943593.jpg"
+const Register = () => {
 
     const [message, setMessage] = useState(null);
-    const [userlogin, setUserLogin] = useState({
-        email: "", password: ""
+    const [userregister, setUserRegister] = useState({
+        email: "", password: "",phone:null,password:"",cpassword:""
     });
 
     let name, value;
 
-    const handleLoginInputs = (e) => {
+    const handleRegisterInputs = (e) => {
         e.preventDefault();
         name = e.target.name;
         value = e.target.value;
 
-        setUserLogin({ ...userlogin, [name]: value });
+        setUserRegister({ ...userregister, [name]: value });
     }
 
-    const PostUserLogin = () => {
-        let email = userlogin.email;
-        let password = userlogin.password;
-        axios.post('/auth/login', { email, password }).then(res => {
-            localStorage.setItem('token', res.data.token)
-            navigate('/home')
-            window.location.reload();
+    const PostUserRegister = () => {
+        let email = userregister.email;
+        let password = userregister.password;
+        let cpassword = userregister.cpassword;
+        let name = userregister.name;
+        let phone = userregister.phone;
+        axios.post('/auth/register', { email, password,cpassword,name,phone }).then(res => {
+            // console.log(res);
+            setMessage("Account successfully created");
         }).catch((err) => { setMessage(err.response.data.message); console.log(err) })
     }
 
@@ -50,7 +51,7 @@ const Login = () => {
                             class="grow-0 shrink-1 md:shrink-0 basis-auto xl:w-6/12 lg:w-6/12 md:w-9/12 mb-12 md:mb-0"
                         >
                             <img
-                                src={loginImage}
+                                src={registerImage}
                                 class="w-full"
                                 alt="Sample image"
                             />
@@ -61,41 +62,62 @@ const Login = () => {
                                 <div
                                     class="flex items-center my-4 before:flex-1 before:border-t before:border-gray-300 before:mt-0.5 after:flex-1 after:border-t after:border-gray-300 after:mt-0.5"
                                 >
-                                    <p class="text-center font-semibold mx-4 mb-0">Login</p>
+                                    <p class="text-center font-semibold mx-4 mb-0">Register</p>
                                 </div>
-
                                 <div class="mb-6">
                                     <input
                                         type="text"
                                         class="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                                         id="exampleFormControlInput2"
-                                        placeholder="Email address" name='email' value={userlogin.email} onChange={handleLoginInputs}
+                                        placeholder="Name" name='name' value={userregister.name} onChange={handleRegisterInputs}
                                     />
                                 </div>
-
+                                <div class="mb-6">
+                                    <input
+                                        type="text"
+                                        class="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                                        id="exampleFormControlInput2"
+                                        placeholder="Email address" name='email' value={userregister.email} onChange={handleRegisterInputs}
+                                    />
+                                </div>
+                                <div class="mb-6">
+                                    <input
+                                        type="number"
+                                        class="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                                        id="exampleFormControlInput2"
+                                        placeholder="Number" name='phone' value={userregister.phone} onChange={handleRegisterInputs}
+                                    />
+                                </div>
                                 <div class="mb-6">
                                     <input
                                         type="password"
                                         class="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                                         id="exampleFormControlInput2"
-                                        placeholder="Password" name='password' value={userlogin.password} onChange={handleLoginInputs}
+                                        placeholder="Password" name='password' value={userregister.password} onChange={handleRegisterInputs}
                                     />
                                 </div>
-
+                                <div class="mb-6">
+                                    <input
+                                        type="password"
+                                        class="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                                        id="exampleFormControlInput2"
+                                        placeholder="Confirm Password" name='cpassword' value={userregister.cpassword} onChange={handleRegisterInputs}
+                                    />
+                                </div>
 
                                 <div class="text-center lg:text-left">
                                     <button
                                         type="button"
                                         class="inline-block px-7 py-3 bg-blue-600 text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
-                                        onClick={PostUserLogin}>
-                                        Login
+                                        onClick={PostUserRegister}>
+                                        Register
                                     </button>
                                     <p class="text-sm font-semibold mt-2 pt-1 mb-0">
-                                        Don't have an account?
+                                        Already have an account?
                                         <Link
-                                            to='/register'
+                                            to="/login"
                                             class="text-red-600 hover:text-red-700 focus:text-red-700 transition duration-200 ease-in-out"
-                                        >Register</Link>
+                                        >Login</Link>
                                     </p>
                                 </div>
                             </form>
@@ -107,4 +129,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default Register
