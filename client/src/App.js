@@ -14,17 +14,21 @@ import Landing from './components/Landing';
 function App() {
   return (
     <BrowserRouter>
-        <Navbar />
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/timeline" element={<Timeline />} />
-            <Route path="/enroll" element={<Enroll />} />
-            <Route path="/absent" element={<Absent />} />
-            <Route path="/register" element={<Register />} />
-          </Routes>
-        {/* <Footer /> */}
+    <div className='flex flex-col h-screen'>
+    <Navbar />
+      <div className='mb-auto'>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/timeline" element={<Timeline />} />
+        <Route path="/enroll" element={<Enroll />} />
+        <Route path="/absent" element={<Absent />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+      </div>
+      <Footer/>
+    </div>
     </BrowserRouter>
   );
 }

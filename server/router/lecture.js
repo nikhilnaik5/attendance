@@ -12,13 +12,13 @@ const jwt = require('jsonwebtoken');
 require('../config/passjwt');
 
 router.get('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    let user = req.user;
-    user = await User.findOne({ _id: user });
-    let later = user;
-    user = user.subjects;
+    try {
+        let user = req.user;
+        user = await User.findOne({ _id: user });
+        let later = user;
+        user = user.subjects;
 
-    let schedule = [];
-    if (user.length != 0) {
+        let schedule = [];
         let subject = await Subject.findOne({ _id: user[0] });
         let start = subject.start;
         let finish = subject.end;
@@ -140,65 +140,77 @@ router.get('/', passport.authenticate('jwt', { session: false }), async (req, re
         output.push(schedule);
         res.status(200).send(output);
     }
-    else {
+    catch (err) {
+        console.log(err);
         let output = [];
         res.status(200).send(output);
     }
 
 });
 
-
 router.post('/addsubject', async (req, res) => {
-    const { name, start, end, monday, tuesday, wednesday, thursday, friday } = req.body;
-    const subject = new Subject({ name, start, end, monday, tuesday, wednesday, thursday, friday })
-    if (await subject.save()) {
-        res.status(200).send("Successfully added a subject");
-    }
-    else {
-        res.status(500).send("An error occured while adding a subject");
+    try {
+        const { name, start, end, monday, tuesday, wednesday, thursday, friday } = req.body;
+        const subject = new Subject({ name, start, end, monday, tuesday, wednesday, thursday, friday })
+        if (await subject.save()) {
+            res.status(200).send("Successfully added a subject");
+        }
+        else {
+            res.status(500).send("An error occured while adding a subject");
+        }
+    } catch (error) {
+        res.status(500).send("An error occured");
     }
 });
 
 router.post('/addextra', async (req, res) => {
-    let date = new Date(req.body.date);
-    date = new Date(date.getTime() + date.getTimezoneOffset() * -60000)
-    const subject = req.body.subject;
-    const extralecture = new Extra({ date });
-    for (var i = 0; i < subject.length; i++) {
-        let sub = await Subject.findOne({ "name": subject[i] });
-        extralecture.subjects.push(sub);
+    try {
+        let date = new Date(req.body.date);
+        date = new Date(date.getTime() + date.getTimezoneOffset() * -60000)
+        const subject = req.body.subject;
+        const extralecture = new Extra({ date });
+        for (var i = 0; i < subject.length; i++) {
+            let sub = await Subject.findOne({ "name": subject[i] });
+            extralecture.subjects.push(sub);
+        }
+        const extraSave = await extralecture.save();
+        for (var i = 0; i < subject.length; i++) {
+            let sub = await Subject.findOne({ "name": subject[i] });
+            sub.extra.push(extraSave);
+            await sub.save();
+        }
+        res.status(200).send("Successfully added a extra lecture");
+    } catch (error) {
+        res.status(500).send({ message: "An error occured at the server" });
     }
-    const extraSave = await extralecture.save();
-    for (var i = 0; i < subject.length; i++) {
-        let sub = await Subject.findOne({ "name": subject[i] });
-        sub.extra.push(extraSave);
-        await sub.save();
-    }
-    res.status(200).send("Successfully added a extra lecture");
 })
 
 router.post('/addholiday', async (req, res) => {
-    let date = new Date(req.body.date);
-    date = new Date(date.getTime() + date.getTimezoneOffset() * -60000)
-    const subject = req.body.subject;
-    const holiday = new Holiday({ date });
-    for (var i = 0; i < subject.length; i++) {
-        let sub = await Subject.findOne({ "name": subject[i] });
-        holiday.subjects.push(sub);
+    try {
+        let date = new Date(req.body.date);
+        date = new Date(date.getTime() + date.getTimezoneOffset() * -60000)
+        const subject = req.body.subject;
+        const holiday = new Holiday({ date });
+        for (var i = 0; i < subject.length; i++) {
+            let sub = await Subject.findOne({ "name": subject[i] });
+            holiday.subjects.push(sub);
+        }
+        const holidaySave = await holiday.save();
+        for (var i = 0; i < subject.length; i++) {
+            let sub = await Subject.findOne({ "name": subject[i] });
+            sub.holiday.push(holidaySave);
+            await sub.save();
+        }
+        res.status(200).send("Successfully added a holiday");
+    } catch (error) {
+        res.status(500).send({ message: "An error occured at the server" });
     }
-    const holidaySave = await holiday.save();
-    for (var i = 0; i < subject.length; i++) {
-        let sub = await Subject.findOne({ "name": subject[i] });
-        sub.holiday.push(holidaySave);
-        await sub.save();
-    }
-    res.status(200).send("Successfully added a holiday");
 })
 
 router.post('/enrollcourse', passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
         if (req.body.subject == null) {
-            res.status(500).send({message:"Incomplete Information"});
+            res.status(500).send({ message: "Incomplete Information" });
         }
         else {
             const subj = req.body.subject;
@@ -206,12 +218,10 @@ router.post('/enrollcourse', passport.authenticate('jwt', { session: false }), a
             var sub = await Subject.findOne({ name: subj })
             var user = await User.findOne({ _id: id })
             user.subjects.push(sub);
-            if(await user.save())
-            {
-                res.status(200).send({message:"Successfully enrolled to the course"})
+            if (await user.save()) {
+                res.status(200).send({ message: "Successfully enrolled to the course" })
             }
-            else
-            {
+            else {
                 res.status(500).send({ message: "An error occured" });
             }
         }
@@ -231,7 +241,7 @@ router.post('/absent', passport.authenticate('jwt', { session: false }), async (
         const student = await User.findOne({ _id: id });
         const subject = await Subject.findOne({ name: subj });
 
-        if (student == null || subject == null || req.body.date == null) {
+        if (student == null || subject == null || req.body.date == null || req.body.number == 0) {
             res.status(500).send({ message: "Incomplete details encountered" });
         }
         else {
@@ -257,150 +267,301 @@ router.post('/absent', passport.authenticate('jwt', { session: false }), async (
 })
 
 router.post('/sub', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    const sub = req.body.subject;
-    const subject = await Subject.findOne({ name: sub });
-    let start = new Date(subject.start);
-    let end = new Date(subject.end);
-    let schedule = [];
-    let temp = [];
-    while (start.getTime() <= end.getTime()) {
-        let day = start.getDay();
-        temp = [];
-        if (day == 0 && subject.sunday != 0) {
-            temp.push(new Date(start));
-            temp.push(subject.sunday);
-            schedule.push(temp);
-        }
-        else if (day == 1 && subject.monday != 0) {
-            temp.push(new Date(start));
-            temp.push(subject.monday);
-            schedule.push(temp);
-        }
-        else if (day == 2 && subject.tuesday != 0) {
-            temp.push(new Date(start));
-            temp.push(subject.tuesday);
-            schedule.push(temp);
-        }
-        else if (day == 3 && subject.wednesday != 0) {
-            temp.push(new Date(start));
-            temp.push(subject.wednesday);
-            schedule.push(temp);
-        }
-        else if (day == 4 && subject.thursday != 0) {
-            temp.push(new Date(start));
-            temp.push(subject.thursday);
-            schedule.push(temp);
-        }
-        else if (day == 5 && subject.friday != 0) {
+    try {
+        const sub = req.body.subject;
+        const subject = await Subject.findOne({ name: sub });
+        let start = new Date(subject.start);
+        let end = new Date(subject.end);
+        let schedule = [];
+        let temp = [];
+        while (start.getTime() <= end.getTime()) {
+            let day = start.getDay();
+            temp = [];
+            if (day == 0 && subject.sunday != 0) {
+                temp.push(new Date(start));
+                temp.push(subject.sunday);
+                schedule.push(temp);
+            }
+            else if (day == 1 && subject.monday != 0) {
+                temp.push(new Date(start));
+                temp.push(subject.monday);
+                schedule.push(temp);
+            }
+            else if (day == 2 && subject.tuesday != 0) {
+                temp.push(new Date(start));
+                temp.push(subject.tuesday);
+                schedule.push(temp);
+            }
+            else if (day == 3 && subject.wednesday != 0) {
+                temp.push(new Date(start));
+                temp.push(subject.wednesday);
+                schedule.push(temp);
+            }
+            else if (day == 4 && subject.thursday != 0) {
+                temp.push(new Date(start));
+                temp.push(subject.thursday);
+                schedule.push(temp);
+            }
+            else if (day == 5 && subject.friday != 0) {
 
-            temp.push(new Date(start));
-            temp.push(subject.friday);
-            schedule.push(temp);
-        }
-        else if (day == 6 && subject.saturday != 0) {
-            temp.push(new Date(start));
-            temp.push(subject.saturday);
-            schedule.push(temp);
-        }
-        start.setTime(start.getTime() + 1000 * 60 * 60 * 24);
-    }
-    for (var i = 0; i < subject.extra.length; i++) {
-        let extra = await Extra.findOne({ _id: subject.extra[i] });
-        let date = new Date(extra.date);
-        for (var j = 0; j < schedule.length; j++) {
-            let c = new Date(schedule[j][0]);
-            if (date.getTime() == c.getTime()) {
-                schedule[j][1] = schedule[j][1] + extra.number;
-                break;
+                temp.push(new Date(start));
+                temp.push(subject.friday);
+                schedule.push(temp);
             }
-            else if (date.getTime() > c.getTime()) {
-                let temp = [];
-                temp.push(date);
-                temp.push(extra.number);
-                schedule.splice(j + 1, 0, temp);
-                // console.log("Wassup");
-                break;
+            else if (day == 6 && subject.saturday != 0) {
+                temp.push(new Date(start));
+                temp.push(subject.saturday);
+                schedule.push(temp);
             }
+            start.setTime(start.getTime() + 1000 * 60 * 60 * 24);
         }
-    }
-    for (var i = 0; i < subject.holiday.length; i++) {
-        let holiday = await Holiday.findOne({ _id: subject.holiday[i] });
-        let date = new Date(holiday.date);
-        for (var j = 0; j < schedule.length; j++) {
-            let c = new Date(schedule[j][0]);
-            if (date.getTime() == c.getTime()) {
-                schedule[j][1] = schedule[j][1] - holiday.number;
-                if (schedule[j][1] == 0) {
-                    schedule.splice(j, 1);
+        for (var i = 0; i < subject.extra.length; i++) {
+            let extra = await Extra.findOne({ _id: subject.extra[i] });
+            let date = new Date(extra.date);
+            for (var j = 0; j < schedule.length; j++) {
+                let c = new Date(schedule[j][0]);
+                if (date.getTime() == c.getTime()) {
+                    schedule[j][1] = schedule[j][1] + extra.number;
+                    break;
                 }
-                break;
+                else if (date.getTime() < c.getTime()) {
+                    let temp = [];
+                    temp.push(date);
+                    temp.push(extra.number);
+                    schedule.splice(j + 1, 0, temp);
+                    // console.log("Wassup");
+                    break;
+                }
             }
         }
-    }
-    for (var i = 0; i < schedule.length; i++) {
-        schedule[i].push(schedule[i][1]);
-        schedule[i].push(0);
-    }
-    for (var i = 0; i < req.user.absent.length; i++) {
-        let absent = await Absent.findOne({ _id: req.user.absent[i] });
-        let subjectdoc = await Subject.find({ _id: absent.subjects });
-        if (!subjectdoc[0]._id.equals(subject._id)) {
-            continue;
-        }
-        let date = new Date(absent.date)
-        for (var j = 0; j < schedule.length; j++) {
-            let c = new Date(schedule[j][0]);
-            if (date.getTime() == c.getTime()) {
-                schedule[j][2] = schedule[j][2] - absent.number;
-                schedule[j][3] = -1;
-                break;
+        for (var i = 0; i < subject.holiday.length; i++) {
+            let holiday = await Holiday.findOne({ _id: subject.holiday[i] });
+            let date = new Date(holiday.date);
+            for (var j = 0; j < schedule.length; j++) {
+                let c = new Date(schedule[j][0]);
+                if (date.getTime() == c.getTime()) {
+                    schedule[j][1] = schedule[j][1] - holiday.number;
+                    if (schedule[j][1] == 0) {
+                        schedule.splice(j, 1);
+                    }
+                    break;
+                }
             }
         }
-    }
-    let lectures = 0;
-    let attended = 0;
-    let currDate = new Date();
-    for (var i = 0; i < schedule.length; i++) {
-        lectures += schedule[i][1];
-        attended += schedule[i][2];
-        schedule[i].push(lectures);
-        schedule[i].push(attended);
-        let tableDate = new Date(schedule[i][0]);
-        if (tableDate.getTime() <= currDate.getTime()) {
-            schedule[i].push(1);
-        }
-        else {
+        for (var i = 0; i < schedule.length; i++) {
+            schedule[i].push(schedule[i][1]);
             schedule[i].push(0);
         }
-    }
+        for (var i = 0; i < req.user.absent.length; i++) {
+            let absent = await Absent.findOne({ _id: req.user.absent[i] });
+            let subjectdoc = await Subject.find({ _id: absent.subjects });
+            if (!subjectdoc[0]._id.equals(subject._id)) {
+                continue;
+            }
+            let date = new Date(absent.date)
+            for (var j = 0; j < schedule.length; j++) {
+                let c = new Date(schedule[j][0]);
+                if (date.getTime() == c.getTime()) {
+                    schedule[j][2] = schedule[j][2] - absent.number;
+                    schedule[j][3] = -1;
+                    break;
+                }
+            }
+        }
+        let lectures = 0;
+        let attended = 0;
+        let currDate = new Date();
+        for (var i = 0; i < schedule.length; i++) {
+            lectures += schedule[i][1];
+            attended += schedule[i][2];
+            schedule[i].push(lectures);
+            schedule[i].push(attended);
+            let tableDate = new Date(schedule[i][0]);
+            if (tableDate.getTime() <= currDate.getTime()) {
+                schedule[i].push(1);
+            }
+            else {
+                schedule[i].push(0);
+            }
+        }
 
-    res.status(200).send(schedule);
+        res.status(200).send(schedule);
+    } catch (error) {
+        res.status(500).send({ message: error })
+    }
 })
 
 router.get('/getsubjectnames', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    let user = await User.findOne({ _id: req.user._id });
-    let subjects = await Subject.find();
-    let userSubjects = user.subjects;
-    for (var i = 0; i < userSubjects.length; i++) {
-        let result = await Subject.find({ _id: userSubjects[i] });
-        for (var j = 0; j < subjects.length; j++) {
-            let ans = result[0]._id;
-            if (ans.equals(subjects[j]._id)) {
-                subjects.splice(j, 1);
+    try {
+        let user = await User.findOne({ _id: req.user._id });
+        let subjects = await Subject.find();
+        let userSubjects = user.subjects;
+        for (var i = 0; i < userSubjects.length; i++) {
+            let result = await Subject.find({ _id: userSubjects[i] });
+            for (var j = 0; j < subjects.length; j++) {
+                let ans = result[0]._id;
+                if (ans.equals(subjects[j]._id)) {
+                    subjects.splice(j, 1);
+                }
             }
         }
+        res.status(200).send(subjects);
+    } catch (error) {
+        res.status(500).send({ message: error })
     }
-    res.status(200).send(subjects);
 })
 
 router.get('/getenrolledlist', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    let user = await User.findOne({ _id: req.user._id });
-    let subjects = [];
-    for (var i = 0; i < user.subjects.length; i++) {
-        let sub = await Subject.findOne({ _id: user.subjects[i] });
-        subjects.push(sub.name);
+    try {
+        let user = await User.findOne({ _id: req.user._id });
+        let subjects = [];
+        for (var i = 0; i < user.subjects.length; i++) {
+            let sub = await Subject.findOne({ _id: user.subjects[i] });
+            subjects.push(sub.name);
+        }
+        res.status(200).send(subjects);
+    } catch (error) {
+        res.status(500).send({ message: error })
     }
-    res.status(200).send(subjects);
+})
+
+router.get('/list', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+        let user = await User.findOne({ _id: req.user._id });
+        let subjects = [];
+        subjects.push([]);
+        for (var i = 0; i < user.subjects.length; i++) {
+            let sub = await Subject.findOne({ _id: user.subjects[i] });
+            subjects[0].push(sub.name);
+        }
+        subjects.push([]);
+        subjects.push([]);
+        let currDate = new Date();
+        for (var i = 0; i < subjects[0].length; i++) {
+            let subName = subjects[0][i];
+            let subject = await Subject.findOne({ name: subName });
+            let startDate = subject.start;
+            let finishDate = subject.end;
+            subjects[1].push([]);
+            subjects[2].push([]);
+            while (startDate.getTime() <= Math.min(finishDate.getTime(), currDate.getTime())) {
+                let dayDate = new Date(startDate);
+                let day = dayDate.getDay();
+                if (day == 0 && subject.sunday != 0) {
+                    subjects[1][i].push(dayDate);
+                    subjects[2][i].push(subject.sunday);
+                }
+                else if (day == 1 && subject.monday != 0) {
+                    subjects[1][i].push(dayDate);
+                    subjects[2][i].push(subject.monday);
+                }
+                else if (day == 2 && subject.tuesday != 0) {
+                    subjects[1][i].push(dayDate);
+                    subjects[2][i].push(subject.tuesday);
+                }
+                else if (day == 3 && subject.wednesday != 0) {
+                    subjects[1][i].push(dayDate);
+                    subjects[2][i].push(subject.wednesday);
+                }
+                else if (day == 4 && subject.thursday != 0) {
+                    subjects[1][i].push(dayDate);
+                    subjects[2][i].push(subject.thursday);
+                }
+                else if (day == 5 && subject.friday != 0) {
+                    subjects[1][i].push(dayDate);
+                    subjects[2][i].push(subject.friday);
+                }
+                else if (day == 6 && subject.saturday != 0) {
+                    subjects[1][i].push(dayDate);
+                    subjects[2][i].push(subject.saturday);
+                }
+                startDate.setTime(startDate.getTime() + 1000 * 60 * 60 * 24);
+            }
+            for (var j = 0; j < subject.extra.length; j++) {
+                let extra = await Extra.findOne({ _id: subject.extra[j] });
+                let extraDate = new Date(extra.date);
+                for (var k = 0; k < subjects[1][i].length; k++) {
+                    let sample = new Date(subjects[1][i][k]);
+                    if (extraDate.getTime() == sample.getTime()) {
+                        subjects[2][i][k] = subjects[2][i][k] + extra.number;
+                        break;
+                    }
+                    else if (extraDate.getTime() < sample.getTime()) {
+                        subjects[1][i].splice(k, 0, extraDate);
+                        subjects[2][i].splice(k, 0, extra.number);
+                        break;
+                    }
+                }
+            }
+            for (var j = 0; j < subject.holiday.length; j++) {
+                let holiday = await Holiday.findOne({ _id: subject.holiday[j] });
+                let holidayDate = new Date(holiday.date);
+                for (var k = 0; k < subjects[1][i].length; k++) {
+                    let sample = new Date(subjects[1][i][k]);
+                    if (holidayDate.getTime() == sample.getTime()) {
+                        subjects[2][i][k] = subjects[2][i][k] - holiday.number;
+                    }
+                    if (subjects[2][i][k] == 0) {
+                        subjects[1][i].splice(k, 1);
+                        subjects[2][i].splice(k, 1);
+                    }
+                }
+            }
+        }
+        for (var i = 0; i < user.absent.length; i++) {
+            let absent = await Absent.findOne({ _id: user.absent[i] });
+            let absentSubject = await Subject.findOne({_id:absent.subjects});
+            for (var j = 0; j < subjects[0].length; j++) {
+                if (subjects[0][j] == absentSubject.name) {
+                    for (var k = 0; k < subjects[1][j].length; k++) {
+                        let absentDate = new Date(absent.date);
+                        let compareDate = new Date(subjects[1][j][k]);
+                        if (absentDate.getTime() == compareDate.getTime()) {
+                            subjects[1][j].splice(k, 1);
+                            subjects[2][j].splice(k, 1);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        res.status(200).send(subjects);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: { error } });
+    }
+
+})
+
+router.get('/absentdata', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+        let user = req.user.id;
+        user = await User.findOne({ _id: user });
+        let absent = user.absent;
+        let result = [];
+        for (var i = 0; i < absent.length; i++) {
+            let sub = await Absent.findOne({ _id: absent[i] }).populate({ path: 'subjects', model: Subject });
+            result.push(sub);
+        }
+        res.status(200).send(result);
+    } catch (error) {
+        res.status(500).send({ message: error })
+    }
+})
+
+router.delete('/absentDelete/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+        let id = req.user.id;
+        let absentID = req.params.id;
+        await User.findByIdAndUpdate(id, { $pull: { absent: absentID } })
+        await Absent.findByIdAndDelete(absentID);
+        res.status(200).send({ message: "Successfully deleted" });
+    } catch (error) {
+        res.status(500).send({ message: error })
+    }
+
 })
 
 module.exports = router;
