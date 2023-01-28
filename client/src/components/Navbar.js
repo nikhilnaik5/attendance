@@ -64,6 +64,9 @@ const Navbar = () => {
                             <li>
                                 <Link to="/absent" className="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Add Absent</Link>
                             </li>
+                            <li>
+                            <Link to="/announcements" className="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Announcements</Link>
+                            </li>
                         </ul>
                     </div>:null}
                     {auth?<div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
@@ -79,6 +82,9 @@ const Navbar = () => {
                             </li>
                             <li>
                                 <Link to="/absent" className="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Add Absent</Link>
+                            </li>
+                            <li>
+                                <Link to="/announcements" className="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Announcements</Link>
                             </li>
                         </ul>
                     </div>:<div></div>}

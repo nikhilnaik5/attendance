@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 const holidays = require('./holiday')
 const extras = require('./extra')
+const news = require('./news');
 
 const subjSchema = new Schema({
     name: {
@@ -58,6 +59,10 @@ const subjSchema = new Schema({
     holiday: [{
         type: Schema.Types.ObjectId,
         ref: 'Holiday'
+    }],
+    news: [{
+        type: Schema.Types.ObjectId,
+        ref: 'News'
     }]
 });
 

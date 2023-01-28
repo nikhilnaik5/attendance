@@ -78,8 +78,12 @@ const Absent = () => {
             </div>}
 
             <div className='flex flex basis w-1/2 py-2 px-2'>
-                <div className='basis-1/2 font-bold'>Absent lectures:</div><input type='number' className='border-gray-700 border-2 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 basis-1/2' value={absentnum} onChange={handleChange}>
+                <div className='basis-1/2 font-bold'>Absent lectures:</div>
+                <div>
+                <input type='number' className='border-gray-700 border-2 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 basis-1/2' value={absentnum} onChange={handleChange}>
                 </input>
+                {/* <p id="helper-text-explanation" class="mt-2 text-sm text-gray-500 dark:text-gray-400">Min. Lecture: 1 Max. Lecture: {subjectAbsent[selectedSubjectOption][selectedLectureOption]} </p> */}
+                </div>
             </div>
 
             <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 mx-2" onClick={sendAbsent}>Add Absent</button>

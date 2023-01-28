@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import Absent from './components/Absent';
 import Register from './components/Register';
 import Landing from './components/Landing';
+import Announcements from './components/Announcements'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/enroll" element={<Enroll />} />
         <Route path="/absent" element={<Absent />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/announcements" element={<Announcements />} />
       </Routes>
       </div>
       <Footer/>

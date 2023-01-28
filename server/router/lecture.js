@@ -6,6 +6,8 @@ const Holiday = require('../model/holiday');
 const Extra = require('../model/extra');
 const User = require('../model/userSchema');
 const Absent = require('../model/absent');
+const News = require('../model/news');
+
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 
@@ -150,7 +152,11 @@ router.get('/', passport.authenticate('jwt', { session: false }), async (req, re
 
 router.post('/addsubject', async (req, res) => {
     try {
-        const { name, start, end, monday, tuesday, wednesday, thursday, friday } = req.body;
+        let { name, start, end, monday, tuesday, wednesday, thursday, friday } = req.body;
+        start = new Date(start);
+        start = new Date(start.getTime() + start.getTimezoneOffset() * -60000)
+        end = new Date(end);
+        end = new Date(end.getTime() + end.getTimezoneOffset() * -60000)
         const subject = new Subject({ name, start, end, monday, tuesday, wednesday, thursday, friday })
         if (await subject.save()) {
             res.status(200).send("Successfully added a subject");
@@ -168,17 +174,12 @@ router.post('/addextra', async (req, res) => {
         let date = new Date(req.body.date);
         date = new Date(date.getTime() + date.getTimezoneOffset() * -60000)
         const subject = req.body.subject;
-        const extralecture = new Extra({ date });
-        for (var i = 0; i < subject.length; i++) {
-            let sub = await Subject.findOne({ "name": subject[i] });
-            extralecture.subjects.push(sub);
-        }
+        const extralecture = new Extra({ date: date, number: req.body.number });
+        let sub = await Subject.findOne({ "name": subject[0] });
+        extralecture.subjects.push(sub);
         const extraSave = await extralecture.save();
-        for (var i = 0; i < subject.length; i++) {
-            let sub = await Subject.findOne({ "name": subject[i] });
-            sub.extra.push(extraSave);
-            await sub.save();
-        }
+        sub.extra.push(extraSave);
+        await sub.save();
         res.status(200).send("Successfully added a extra lecture");
     } catch (error) {
         res.status(500).send({ message: "An error occured at the server" });
@@ -190,19 +191,15 @@ router.post('/addholiday', async (req, res) => {
         let date = new Date(req.body.date);
         date = new Date(date.getTime() + date.getTimezoneOffset() * -60000)
         const subject = req.body.subject;
-        const holiday = new Holiday({ date });
-        for (var i = 0; i < subject.length; i++) {
-            let sub = await Subject.findOne({ "name": subject[i] });
-            holiday.subjects.push(sub);
-        }
+        const holiday = new Holiday({ date:date, number: req.body.number  });
+        let sub = await Subject.findOne({ "name": subject[0] });
+        holiday.subjects.push(sub);
         const holidaySave = await holiday.save();
-        for (var i = 0; i < subject.length; i++) {
-            let sub = await Subject.findOne({ "name": subject[i] });
-            sub.holiday.push(holidaySave);
-            await sub.save();
-        }
+        sub.holiday.push(holidaySave);
+        await sub.save();
         res.status(200).send("Successfully added a holiday");
     } catch (error) {
+        console.log(error)
         res.status(500).send({ message: "An error occured at the server" });
     }
 })
@@ -510,7 +507,7 @@ router.get('/list', passport.authenticate('jwt', { session: false }), async (req
         }
         for (var i = 0; i < user.absent.length; i++) {
             let absent = await Absent.findOne({ _id: user.absent[i] });
-            let absentSubject = await Subject.findOne({_id:absent.subjects});
+            let absentSubject = await Subject.findOne({ _id: absent.subjects });
             for (var j = 0; j < subjects[0].length; j++) {
                 if (subjects[0][j] == absentSubject.name) {
                     for (var k = 0; k < subjects[1][j].length; k++) {
@@ -561,7 +558,67 @@ router.delete('/absentDelete/:id', passport.authenticate('jwt', { session: false
     } catch (error) {
         res.status(500).send({ message: error })
     }
+})
 
+router.post('/addNews', async (req, res) => {
+    try {
+        let name = req.body.name;
+        let topic = req.body.topic;
+
+        let newss = new News({ topic: topic });
+        let subject = await Subject.find({ name: name });
+
+        subject.news.push(newss.id);
+        if (await student.save()) {
+            res.status(200).send({ message: "Successfully added information" });
+        }
+        else {
+            res.status(500).send({ message: "Error occurred" });
+        }
+
+    } catch (error) {
+        res.status(500).send({ message: error })
+    }
+})
+
+router.get('/sendAnnouncements',passport.authenticate('jwt', { session: false }),async (req,res)=>{
+    try {
+        let user= req.user.id;
+        user = await User.findOne({_id:user});
+        let list = user.subjects;
+        let result = [];
+        let temp=[];
+        for(var i=0;i<list.length;i++)
+        {
+            temp=[];
+            let subject = await Subject.findOne({_id:list[i]});
+            if(subject.news.length>0 || subject.holiday.length>0)
+            {
+                temp.push([subject.name]);
+                if(subject.news.length>0)
+                {
+                    for(var j=0;j<subject.news.length;j++)
+                    {
+                        let news = await News.findOne({_id:subject.news[j]});
+                        temp.push(["News",news.date,news.title]);
+                    }
+                }
+                if(subject.holiday.length>0)
+                {
+                    for(var j=0;j<subject.holiday.length;j++)
+                    {
+                        let holiday = await Holiday.findOne({_id:subject.holiday[j]});
+                        temp.push(["Holiday",holiday.date,holiday.number+" lecture"]);
+                    }
+                }
+                result.push(temp);
+            }
+        }
+        res.status(200).send(result);
+    } catch (error) {
+        console.log(error)
+        res.status(500).send("An error occured");
+    }
 })
 
 module.exports = router;
