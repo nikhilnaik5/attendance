@@ -564,12 +564,14 @@ router.post('/addNews', async (req, res) => {
     try {
         let name = req.body.name;
         let topic = req.body.topic;
+        let date = new Date(req.body.date);
+        date = new Date(date.getTime() + date.getTimezoneOffset() * -60000)
 
-        let newss = new News({ topic: topic });
-        let subject = await Subject.find({ name: name });
-
-        subject.news.push(newss.id);
-        if (await student.save()) {
+        let newss = new News({ topic: topic, date:date  });
+        let subject = await Subject.findOne({ name: name});
+        let result = await newss.save();
+        subject.news.push(result);
+        if (await subject.save()) {
             res.status(200).send({ message: "Successfully added information" });
         }
         else {
@@ -577,7 +579,8 @@ router.post('/addNews', async (req, res) => {
         }
 
     } catch (error) {
-        res.status(500).send({ message: error })
+        console.log(error);
+        res.status(500).send({ message: "Unable to add news" });
     }
 })
 
@@ -600,7 +603,7 @@ router.get('/sendAnnouncements',passport.authenticate('jwt', { session: false })
                     for(var j=0;j<subject.news.length;j++)
                     {
                         let news = await News.findOne({_id:subject.news[j]});
-                        temp.push(["News",news.date,news.title]);
+                        temp.push(["News",news.date,news.topic]);
                     }
                 }
                 if(subject.holiday.length>0)
@@ -609,6 +612,14 @@ router.get('/sendAnnouncements',passport.authenticate('jwt', { session: false })
                     {
                         let holiday = await Holiday.findOne({_id:subject.holiday[j]});
                         temp.push(["Holiday",holiday.date,holiday.number+" lecture"]);
+                    }
+                }
+                if(subject.extra.length>0)
+                {
+                    for(var j=0;j<subject.extra.length;j++)
+                    {
+                        let extra = await Extra.findOne({_id:subject.extra[j]});
+                        temp.push(["Extra",extra.date,extra.number+" lecture"]);
                     }
                 }
                 result.push(temp);
