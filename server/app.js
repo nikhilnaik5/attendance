@@ -12,11 +12,11 @@ app.use(cors());
 app.use('/static', express.static('static'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "..", "client", "build")));
+app.use(express.static(path.join(__dirname, "build")));
 
 
 dotenv.config({path:'./config.env'});
-const port=process.env.PORT || 5000;
+const port=8080;
 
 require('./db/conn.js');
 require('./config/passjwt');
@@ -25,7 +25,7 @@ app.use("/auth", authRoute);
 app.use("/lecture", lectureRoute);
 
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "..", "client", "build", "index.html"));
+    res.sendFile(path.join(__dirname, "build", "index.html"));
 })
 
 app.listen(port, ()=>{

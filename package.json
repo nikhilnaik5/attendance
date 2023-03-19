@@ -6,6 +6,6 @@
         "install-client": "cd client && npm install && npm run build && cd ..",
         "install-server": "cd server && npm install && cd .. ",
         "render-postbuild": "npm run install-client && npm run install-server",
-        "start": "npm start -prefix server"
+        "start": "cd server && node app.js"
     }
 }
